@@ -8,6 +8,16 @@
   <link rel="stylesheet" href="styles.css?v=4" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
+<style>
+@keyframes spinLogo {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.logo-loading {
+  animation: spinLogo 1.2s linear infinite;
+}
+</style>
 </head>
 
 <body>
@@ -17,7 +27,7 @@
         <a href="/#services">Услуги</a>
         <a href="/#about">Опыт</a>
         <a href="/#contact">Контакты</a>
-        <a href="/tnved.html">Подбор ТН ВЭД</a>
+        <a href="tnved.html">Подбор ТН ВЭД</a>>
       </nav>
     </div>
   </header>
@@ -61,7 +71,7 @@
           </div>
 
           <div class="hero__logoWrap" aria-hidden="true">
-            <img class="hero__logo" src="assets/logo.png" alt="" />
+            <img id="mainLogo" class="hero__logo" src="assets/logo.png" alt="" />
           </div>
         </div>
       </div>
@@ -91,8 +101,9 @@ form.addEventListener("submit", async (e) => {
 
   btn.disabled = true;
   statusEl.textContent = "Идёт подбор кода...";
+  document.getElementById("mainLogo").classList.add("logo-loading");
 
-  try {
+    try {
     const response = await fetch("https://api.vedsupport.com/web/classify", {
       method: "POST",
       headers: {
@@ -122,8 +133,9 @@ form.addEventListener("submit", async (e) => {
 
   } catch (err) {
     statusEl.textContent = "Ошибка запроса. Попробуйте позже.";
+  } finally {
+    document.getElementById("mainLogo").classList.remove("logo-loading");
+    btn.disabled = false;
   }
-
-  btn.disabled = false;
 });
 </script>
