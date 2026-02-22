@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Подбор кода ТН ВЭД — ВЭД Суппорт</title>
+  <meta name="description" content="Подбор предполагаемого кода ТН ВЭД по краткому описанию товара." />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <nav class="nav" aria-label="Навигация">
+        <a href="/#services">Услуги</a>
+        <a href="/#about">Опыт</a>
+        <a href="/#contact">Контакты</a>
+        <a href="/tnved.html">Подбор ТН ВЭД</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero" style="padding-top: 26px;">
+    <div class="container">
+      <div class="hero__panel">
+        <div class="hero__inner">
+          <div>
+            <div class="kicker"><span class="kicker__dot"></span> Онлайн-инструмент • Подбор ТН ВЭД</div>
+            <h1 class="h1">Подбор кода ТН ВЭД</h1>
+            <p class="lead">
+              Введите краткое описание товара — получите предполагаемый код и список уточняющих вопросов.
+            </p>
+
+            <div class="card card--big" style="margin-top: 14px;">
+              <form class="form" id="tnvedForm">
+                <div class="field">
+                  <div class="label">Введите краткое описание товара:</div>
+                  <textarea id="goodsText" required placeholder="Например: 'Футболка мужская, 100% хлопок, трикотаж'"></textarea>
+                </div>
+
+                <button class="btn btn--primary btn--wide" type="submit" id="tnvedBtn">
+                  Подобрать код
+                </button>
+
+                <div id="tnvedStatus" class="fineprint" style="margin-top:10px;"></div>
+
+                <div id="tnvedResult" class="card" style="margin-top:14px; display:none;">
+                  <div class="keyval"><div class="key">Предполагаемый код ТН ВЭД:</div><div class="val" id="rCode">—</div></div>
+                  <div class="keyval"><div class="key">Основание для этого кода:</div><div class="val" id="rReason">—</div></div>
+                  <div class="keyval"><div class="key">Вероятность правильности кода:</div><div class="val" id="rProb">—</div></div>
+                  <div class="keyval"><div class="key">Необходимо уточнить характеристики:</div><div class="val" id="rQuestions">—</div></div>
+                </div>
+              </form>
+
+              <div class="fineprint" style="margin-top:12px;">
+                Примечание: результат носит справочный характер. Для спорных случаев требуется анализ документов и характеристик товара.
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__logoWrap" aria-hidden="true">
+            <img class="hero__logo" src="assets/logo.png" alt="" />
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer" style="margin-top:18px;">
+        <div class="container footer__inner">
+          <div>© <span id="year"></span> «ВЭД Суппорт»</div>
+          <div>vedsupport.com</div>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const form = document.getElementById("tnvedForm");
+const statusEl = document.getElementById("tnvedStatus");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById("tnvedBtn");
+  const text = document.getElementById("goodsText").value.trim();
+
+  if (!text) return;
+
+  btn.disabled = true;
+  statusEl.textContent = "Идёт подбор кода...";
+
+  try {
+    const response = await fetch("https://api.vedsupport.com/web/classify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ description: text })
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка сервера");
+    }
+
+    const data = await response.json();
+
+    document.getElementById("rCode").textContent = data.tnved_code || "Не определён";
+    document.getElementById("rReason").textContent = data.rationale || "—";
+    document.getElementById("rProb").textContent = data.probability + " %";
+
+    if (data.questions && data.questions.length > 0) {
+      document.getElementById("rQuestions").textContent = data.questions.join("; ");
+    } else {
+      document.getElementById("rQuestions").textContent = "Дополнительные уточнения не требуются";
+    }
+
+    document.getElementById("tnvedResult").style.display = "block";
+    statusEl.textContent = "";
+
+  } catch (err) {
+    statusEl.textContent = "Ошибка запроса. Попробуйте позже.";
+  }
+
+  btn.disabled = false;
+});
+</script>
