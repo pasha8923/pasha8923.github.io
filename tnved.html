@@ -27,7 +27,7 @@
         <a href="/#services">Услуги</a>
         <a href="/#about">Опыт</a>
         <a href="/#contact">Контакты</a>
-        <a href="tnved.html">Подбор кода ТН ВЭД</a>>
+        <a href="tnved.html">Подбор кода ТН ВЭД</a>
       </nav>
     </div>
   </header>
@@ -46,9 +46,35 @@
             <div class="card card--big" style="margin-top: 14px;">
               <form class="form" id="tnvedForm">
                 <div class="field">
-                  <div class="label">Введите краткое описание товара:</div>
-                  <textarea id="goodsText" required placeholder="Например: 'Футболка мужская, 100% хлопок, трикотаж'"></textarea>
-                </div>
+  <div class="label">Введите краткое описание товара:</div>
+  <textarea
+    id="goodsText"
+    placeholder="Например: 'Футболка мужская, 100% хлопок, трикотаж'"
+  ></textarea>
+
+  <div id="imgBox" style="margin-top:12px; display:none;">
+    <div class="label">Вставленное изображение:</div>
+
+    <img
+      id="imgPreview"
+      alt="preview"
+      style="max-width:100%; border-radius:12px; display:block; margin-top:8px;"
+    />
+
+    <button
+      type="button"
+      class="btn btn--wide"
+      id="imgRemoveBtn"
+      style="margin-top:10px;"
+    >
+      Удалить изображение
+    </button>
+
+    <div class="fineprint" style="margin-top:8px;">
+      Подсказка: можно вставить скриншот (Ctrl+V) прямо в поле описания.
+    </div>
+  </div>
+</div>
 
                 <button class="btn btn--primary btn--wide" type="submit" id="tnvedBtn">
                   Подобрать код
@@ -90,6 +116,43 @@ document.getElementById("year").textContent = new Date().getFullYear();
 
 const form = document.getElementById("tnvedForm");
 const statusEl = document.getElementById("tnvedStatus");
+let pastedImageDataUrl = null;
+const textarea = document.getElementById("goodsText");
+const imgBox = document.getElementById("imgBox");
+const imgPreview = document.getElementById("imgPreview");
+const imgRemoveBtn = document.getElementById("imgRemoveBtn");
+
+textarea.addEventListener("paste", (e) => {
+  const items = (e.clipboardData || window.clipboardData)?.items;
+  if (!items) return;
+
+  for (const it of items) {
+    if (it.type && it.type.startsWith("image/")) {
+      e.preventDefault();
+
+      const file = it.getAsFile();
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        pastedImageDataUrl = reader.result; // data:image/...;base64,....
+        imgPreview.src = pastedImageDataUrl;
+        imgBox.style.display = "block";
+        statusEl.textContent = "Изображение вставлено. Можно нажимать «Подобрать код».";
+      };
+      reader.readAsDataURL(file);
+
+      return;
+    }
+  }
+});
+
+imgRemoveBtn.addEventListener("click", () => {
+  pastedImageDataUrl = null;
+  imgPreview.src = "";
+  imgBox.style.display = "none";
+  statusEl.textContent = "Изображение удалено.";
+});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -97,7 +160,7 @@ form.addEventListener("submit", async (e) => {
   const btn = document.getElementById("tnvedBtn");
   const text = document.getElementById("goodsText").value.trim();
 
-  if (!text) return;
+  if (!text && !pastedImageDataUrl) return;
 
   btn.disabled = true;
   statusEl.textContent = "Идёт подбор кода...";
@@ -109,7 +172,7 @@ form.addEventListener("submit", async (e) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ description: text })
+      body: JSON.stringify({ description: text, image_base64: pastedImageDataUrl })
     });
 
     if (!response.ok) {
