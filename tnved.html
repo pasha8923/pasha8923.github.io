@@ -20,19 +20,24 @@
 </style>
 </head>
 
-<body>
+<body class="page-inner page-tnved">
   <header class="header">
     <div class="container header__inner">
       <nav class="nav" aria-label="Навигация">
-        <a href="/#services">Услуги</a>
-        <a href="/#about">Опыт</a>
-        <a href="/#contact">Контакты</a>
-        <a href="tnved.html">Подбор кода ТН ВЭД</a>
-      </nav>
+  <a href="./services.html">Услуги</a>
+  <a href="./about.html">Опыт</a>
+  <a href="./question.html">Задать вопрос</a>
+  <a href="./tnved.html">Подбор кода ТНВЭД</a>
+  <a href="./contact.html">Контакты</a>
+
+  <a class="navLogo" href="./index.html" aria-label="На главную">
+    <img id="mainLogo" src="assets/logo.png" alt="ВЭД Суппорт">
+  </a>
+</nav>
     </div>
   </header>
 
-  <main class="hero" style="padding-top: 26px;">
+  <main class="hero">
     <div class="container">
       <div class="hero__panel">
         <div class="hero__inner">
@@ -95,110 +100,111 @@
               </div>
             </div>
           </div>
-
-          <div class="hero__logoWrap" aria-hidden="true">
-            <img id="mainLogo" class="hero__logo" src="assets/logo.png" alt="" />
-          </div>
         </div>
       </div>
-
-      <footer class="footer" style="margin-top:18px;">
-        <div class="container footer__inner">
-          <div>© <span id="year"></span> «ВЭД Суппорт»</div>
-          <div>vedsupport.com</div>
-        </div>
-      </footer>
     </div>
-  </main>
+    </main>
 
-  <script>
-document.getElementById("year").textContent = new Date().getFullYear();
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span class="js-year"></span> «ВЭД Суппорт»</div>
+      <div>vedsupport.com</div>
+    </div>
+  </footer>  
+<script>
+  // год в футере
+  document.querySelectorAll(".js-year").forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
 
-const form = document.getElementById("tnvedForm");
-const statusEl = document.getElementById("tnvedStatus");
-let pastedImageDataUrl = null;
-const textarea = document.getElementById("goodsText");
-const imgBox = document.getElementById("imgBox");
-const imgPreview = document.getElementById("imgPreview");
-const imgRemoveBtn = document.getElementById("imgRemoveBtn");
+  const form = document.getElementById("tnvedForm");
+  const statusEl = document.getElementById("tnvedStatus");
+  let pastedImageDataUrl = null;
 
-textarea.addEventListener("paste", (e) => {
-  const items = (e.clipboardData || window.clipboardData)?.items;
-  if (!items) return;
+  const textarea = document.getElementById("goodsText");
+  const imgBox = document.getElementById("imgBox");
+  const imgPreview = document.getElementById("imgPreview");
+  const imgRemoveBtn = document.getElementById("imgRemoveBtn");
 
-  for (const it of items) {
-    if (it.type && it.type.startsWith("image/")) {
-      e.preventDefault();
+  textarea.addEventListener("paste", (e) => {
+    const items = (e.clipboardData || window.clipboardData)?.items;
+    if (!items) return;
 
-      const file = it.getAsFile();
-      if (!file) return;
+    for (const it of items) {
+      if (it.type && it.type.startsWith("image/")) {
+        e.preventDefault();
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        pastedImageDataUrl = reader.result; // data:image/...;base64,....
-        imgPreview.src = pastedImageDataUrl;
-        imgBox.style.display = "block";
-        statusEl.textContent = "Изображение вставлено. Можно нажимать «Подобрать код».";
-      };
-      reader.readAsDataURL(file);
+        const file = it.getAsFile();
+        if (!file) return;
 
-      return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          pastedImageDataUrl = reader.result;
+          imgPreview.src = pastedImageDataUrl;
+          imgBox.style.display = "block";
+          statusEl.textContent = "Изображение вставлено. Можно нажимать «Подобрать код».";
+        };
+        reader.readAsDataURL(file);
+
+        return;
+      }
     }
-  }
-});
+  });
 
-imgRemoveBtn.addEventListener("click", () => {
-  pastedImageDataUrl = null;
-  imgPreview.src = "";
-  imgBox.style.display = "none";
-  statusEl.textContent = "Изображение удалено.";
-});
+  imgRemoveBtn.addEventListener("click", () => {
+    pastedImageDataUrl = null;
+    imgPreview.src = "";
+    imgBox.style.display = "none";
+    statusEl.textContent = "Изображение удалено.";
+  });
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const btn = document.getElementById("tnvedBtn");
-  const text = document.getElementById("goodsText").value.trim();
+    const btn = document.getElementById("tnvedBtn");
+    const text = document.getElementById("goodsText").value.trim();
 
-  if (!text && !pastedImageDataUrl) return;
+    if (!text && !pastedImageDataUrl) {
+  statusEl.textContent = "Введите описание товара или вставьте изображение.";
+  return;
+}
 
-  btn.disabled = true;
-  statusEl.textContent = "Идёт подбор кода...";
-  document.getElementById("mainLogo").classList.add("logo-loading");
+    btn.disabled = true;
+    statusEl.textContent = "Идёт подбор кода...";
+    document.getElementById("mainLogo").classList.add("logo-loading");
 
     try {
-    const response = await fetch("https://api.vedsupport.com/web/classify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ description: text, image_base64: pastedImageDataUrl })
-    });
+      const response = await fetch("https://api.vedsupport.com/web/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: text, image_base64: pastedImageDataUrl })
+      });
 
-    if (!response.ok) {
-      throw new Error("Ошибка сервера");
+      if (!response.ok) throw new Error("Ошибка сервера");
+
+      const data = await response.json();
+
+      document.getElementById("rCode").textContent = data.tnved_code || "Не определён";
+      document.getElementById("rReason").textContent = data.rationale || "—";
+      document.getElementById("rProb").textContent = (data.probability ?? "—") + " %";
+
+      if (data.questions && data.questions.length > 0) {
+        document.getElementById("rQuestions").textContent = data.questions.join("; ");
+      } else {
+        document.getElementById("rQuestions").textContent = "Дополнительные уточнения не требуются";
+      }
+
+      document.getElementById("tnvedResult").style.display = "block";
+      statusEl.textContent = "";
+
+    } catch (err) {
+      statusEl.textContent = "Ошибка запроса. Попробуйте позже.";
+    } finally {
+      document.getElementById("mainLogo").classList.remove("logo-loading");
+      btn.disabled = false;
     }
-
-    const data = await response.json();
-
-    document.getElementById("rCode").textContent = data.tnved_code || "Не определён";
-    document.getElementById("rReason").textContent = data.rationale || "—";
-    document.getElementById("rProb").textContent = data.probability + " %";
-
-    if (data.questions && data.questions.length > 0) {
-      document.getElementById("rQuestions").textContent = data.questions.join("; ");
-    } else {
-      document.getElementById("rQuestions").textContent = "Дополнительные уточнения не требуются";
-    }
-
-    document.getElementById("tnvedResult").style.display = "block";
-    statusEl.textContent = "";
-
-  } catch (err) {
-    statusEl.textContent = "Ошибка запроса. Попробуйте позже.";
-  } finally {
-    document.getElementById("mainLogo").classList.remove("logo-loading");
-    btn.disabled = false;
-  }
-});
+  });
 </script>
+
+</body>
+</html>

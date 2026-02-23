@@ -14,11 +14,16 @@
   <header class="header">
     <div class="container header__inner">
       <nav class="nav" aria-label="Навигация">
-        <a href="#services">Услуги</a>
-        <a href="#about">Опыт</a>
-        <a href="#contact">Контакты</a>
-	<a href="./tnved.html">Подбор кода ТНВЭД</a>
-      </nav>
+  <a href="./services.html">Услуги</a>
+  <a href="./about.html">Опыт</a>
+  <a href="./question.html">Задать вопрос</a>
+  <a href="./tnved.html">Подбор кода</a>
+  <a href="./contact.html">Контакты</a>
+
+  <a class="navLogo" href="./index.html" aria-label="На главную">
+    <img src="assets/logo.png" alt="ВЭД Суппорт">
+  </a>
+</nav>
     </div>
   </header>
 
@@ -38,8 +43,8 @@
             </p>
 
             <div class="hero__cta">
-              <a class="btn btn--primary" href="#contact">Консультация</a>
-            </div>
+  <a class="btn btn--primary" href="./question.html">Задать вопрос</a>
+</div>
           </div>
 
           <div class="hero__logoWrap" aria-hidden="true">
@@ -47,173 +52,25 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <section class="section" id="services">
-      <div class="container">
-        <div class="section__head">
-          <h2 class="h2">Оказываем консультационные услуги по вопросам:</h2>
         </div>
-
-        <div class="card card--big">
-          <div class="twoCols">
-            <ul class="list">
-              <li>ВЭД и таможенного оформления</li>
-              <li>Классификации товаров по ТН ВЭД ЕАЭС, разбор спорных кейсов</li>
-              <li>Расчёта таможенных платежей</li>
-              <li>Необходимости оформления или предоставления разрешительных документов</li>
-              <li>Необходимости нанесения маркировки на товары, организация маркировки «Честный знак»</li>
-              <li>Оценки рисков по международным поставкам</li>
-            </ul>
-
-            <ul class="list">
-              <li>Разработки, оценки и проверки технической документации</li>
-              <li>Формирования ответов на дополнительные проверки</li>
-              <li>Подготовки ответов на запросы таможенных органов</li>
-              <li>Письменных заключений и рекомендаций</li>
-              <li>Оформления ДС/СЕРТ/СГР/ЭКСКОНТ/СТ-1</li>
-              <li>Подбора разрешительной документации по вашим параметрам</li>
-              <li>Проверки комплекта документов, необходимого для таможенного оформления</li>
-            </ul>
-          </div>
-
-          <div class="fineprint">
-            «ВЭД Суппорт» не оказывает услуги таможенного представителя. При необходимости фактическое таможенное
-            оформление выполняется нашими партнёрами — лицензированными таможенными представителями.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="about">
-      <div class="container">
-        <div class="section__head">
-          <h2 class="h2">Опыт и подход</h2>
-        </div>
-
-        <div class="card card--big">
-          <ul class="list">
-            <li>15+ лет в ВЭД, логистике и таможенном оформлении</li>
-            <li>Опыт работы с обширной номенклатурой товаров</li>
-            <li>Успешная практика споров с таможенными органами</li>
-            <li>Формирование пакета документов для минимизации рисков проверок и доначислений</li>
-            <li>Минимальная нагрузка на импортёров</li>
-            <li>Индивидуальный подход</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="contact">
-      <div class="container">
-        <div class="section__head">
-          <h2 class="h2">Контакты</h2>
-        </div>
-
-        <div class="contact">
-          <div class="contactBox">
-            <div class="keyval">
-              <div class="key">Телефон:</div>
-              <div class="val"><a href="tel:+79219939846">+7 921 993-98-46</a></div>
-            </div>
-
-            <div class="keyval">
-              <div class="key">Email:</div>
-              <div class="val" style="font-weight:650;">
-                <a href="mailto:onestepto@vedsupport.com">
-  onestepto@vedsupport.com </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="contactBox">
-            <!-- Важно: без action/method, отправка через JS -->
-            <form class="form" id="contactForm">
-              <div class="field">
-                <div class="label">Имя</div>
-                <input class="input" name="name" autocomplete="name" required placeholder="Ваше имя" />
-              </div>
-
-              <div class="field">
-                <div class="label">Телефон или email</div>
-                <input class="input" name="contact" autocomplete="tel" required placeholder="+7... или email" />
-              </div>
-
-              <div class="field">
-                <div class="label">Сообщение</div>
-                <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
-              </div>
-
-              <!-- Можно оставить subject, он полезен -->
-              <input type="hidden" name="_subject" value="Заявка с vedsupport.com">
-
-              <button class="btn btn--primary btn--wide" type="submit" id="submitBtn">Отправить</button>
-
-              <!-- Небольшое место под статус (по желанию) -->
-              <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <div class="container footer__inner">
-        <div>© <span id="year"></span> «ВЭД Суппорт»</div>
-        <div>vedsupport.com</div>
-      </div>
-    </footer>
-
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-
-    <script>
-      // год в футере
-      document.getElementById("year").textContent = new Date().getFullYear();
-
-      // отправка формы на Formspree + редирект на твою страницу
-      const form = document.getElementById("contactForm");
-      const submitBtn = document.getElementById("submitBtn");
-      const statusEl = document.getElementById("formStatus");
-
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        statusEl.textContent = "";
-        submitBtn.disabled = true;
-
-        try {
-          const data = new FormData(form);
-
-          const resp = await fetch("https://formspree.io/f/mwvnbawv", {
-            method: "POST",
-            body: data,
-            headers: { "Accept": "application/json" }
-          });
-
-          if (resp.ok) {
-            // опционально можно очистить форму:
-            // form.reset();
-            window.location.href = "/thanks.html";
-            return;
-          }
-
-          // если Formspree вернул ошибку — попробуем показать текст
-          let msg = "Ошибка отправки. Попробуйте позже.";
-          try {
-            const json = await resp.json();
-            if (json && json.errors && json.errors.length) {
-              msg = json.errors.map(e => e.message).join(" ");
-            }
-          } catch (_) {}
-
-          statusEl.textContent = msg;
-        } catch (err) {
-          statusEl.textContent = "Сеть недоступна или сервер не отвечает. Попробуйте позже.";
-        } finally {
-          submitBtn.disabled = false;
-        }
-      });
-    </script>
   </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span class="js-year"></span> «ВЭД Суппорт»</div>
+      <div>vedsupport.com</div>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  var yearEls = document.querySelectorAll(".js-year");
+  for (var i = 0; i < yearEls.length; i++) {
+    yearEls[i].textContent = new Date().getFullYear();
+  }
+});
+</script>
 </body>
 </html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Задать вопрос — ВЭД Суппорт</title>
+  <meta name="description" content="Задать вопрос по ВЭД и таможенному регулированию: классификация, платежи, документы, запросы таможни." />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+</head>
+
+<body class="page-inner page-question">
+  <header class="header">
+    <div class="container header__inner">
+      <nav class="nav" aria-label="Навигация">
+        <a href="./services.html">Услуги</a>
+        <a href="./about.html">Опыт</a>
+        <a href="./question.html">Задать вопрос</a>
+        <a href="./tnved.html">Подбор кода ТНВЭД</a>
+        <a href="./contact.html">Контакты</a>
+
+        <a class="navLogo" href="./index.html" aria-label="На главную">
+          <img src="assets/logo.png" alt="ВЭД Суппорт">
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="container">
+      <div class="hero__panel">
+        <div class="hero__inner">
+          <div>
+            <div class="kicker"><span class="kicker__dot"></span> Обратная связь</div>
+
+            <h1 class="h1">Задать вопрос</h1>
+
+            <p class="lead">
+              Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кротчайшие сроки
+            </p>
+
+           <div class="contactBox">
+                <form class="form" id="contactForm">
+                  <div class="field">
+                    <div class="label">Имя</div>
+                    <input class="input" name="name" autocomplete="name" required placeholder="Ваше имя" />
+                  </div>
+
+                  <div class="field">
+                    <div class="label">Телефон или email</div>
+                    <input class="input" name="contact" autocomplete="tel" required placeholder="+7... или email" />
+                  </div>
+
+                  <div class="field">
+                    <div class="label">Сообщение</div>
+                    <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
+                  </div>
+
+                  <input type="hidden" name="_subject" value="Заявка с vedsupport.com">
+
+                  <button class="btn btn--primary btn--wide" type="submit" id="submitBtn">Отправить</button>
+
+                  <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+<footer class="footer">
+  <div class="container footer__inner">
+    <div>© <span class="js-year"></span> «ВЭД Суппорт»</div>
+    <div>vedsupport.com</div>
+  </div>
+</footer>
+
+  <script>
+    const form = document.getElementById("contactForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusEl = document.getElementById("formStatus");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      statusEl.textContent = "";
+      statusEl.className = "fineprint";
+      submitBtn.disabled = true;
+
+      try {
+        const data = new FormData(form);
+
+        const resp = await fetch("https://formspree.io/f/mwvnbawv", {
+          method: "POST",
+          body: data,
+          headers: { "Accept": "application/json" }
+        });
+
+        if (resp.ok) {
+          window.location.href = "/thanks.html";
+          return;
+        }
+
+        let msg = "Ошибка отправки. Попробуйте позже.";
+        try {
+          const json = await resp.json();
+          if (json && json.errors && json.errors.length) {
+            msg = json.errors.map(e => e.message).join(" ");
+          }
+        } catch (_) {}
+
+        statusEl.textContent = msg;
+        statusEl.classList.add("is-error");
+      } catch (err) {
+        statusEl.textContent = "Сеть недоступна или сервер не отвечает. Попробуйте позже.";
+        statusEl.classList.add("is-error");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+<script>
+  document.querySelectorAll(".js-year").forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+</script>
+</body>
+</html>

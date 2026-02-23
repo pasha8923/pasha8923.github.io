@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Контакты — ВЭД Суппорт</title>
+  <meta name="description" content="Контакты ВЭД Суппорт: телефон и email для связи по вопросам ВЭД и таможенного регулирования." />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+</head>
+
+<body class="page-inner page-contact">
+  <header class="header">
+    <div class="container header__inner">
+      <nav class="nav" aria-label="Навигация">
+        <a href="./services.html">Услуги</a>
+        <a href="./about.html">Опыт</a>
+        <a href="./question.html">Задать вопрос</a>
+        <a href="./tnved.html">Подбор кода ТНВЭД</a>
+        <a href="./contact.html">Контакты</a>
+
+        <a class="navLogo" href="./index.html" aria-label="На главную">
+          <img src="assets/logo.png" alt="ВЭД Суппорт">
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="container">
+      <div class="hero__panel">
+        <div class="hero__inner">
+          <div>
+            <div class="kicker"><span class="kicker__dot"></span> Контакты</div>
+
+            <h1 class="h1">Связаться</h1>
+
+            <p class="lead">
+              Напишите или позвоните. Для ускорения ответа укажите товар, страну, условия поставки и что требуется:
+              код ТН ВЭД, платежи, документы, запрос/проверка, аудит ДТ.
+            </p>
+
+            <div class="card card--big">
+              <div class="keyval">
+                <div class="key">Телефон:</div>
+                <div class="val"><a href="tel:+79219939846">+7 921 993-98-46</a></div>
+              </div>
+
+              <div class="keyval">
+                <div class="key">Email:</div>
+                <div class="val"><a href="mailto:onestepto@vedsupport.com">onestepto@vedsupport.com</a></div>
+              </div>
+
+              <div class="fineprint">
+                Для заявки через форму перейдите на страницу «Задать вопрос».
+              </div>
+
+              <div class="hero__cta">
+                <a class="btn btn--primary" href="./question.html">Задать вопрос</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+<footer class="footer">
+  <div class="container footer__inner">
+    <div>© <span class="js-year"></span> «ВЭД Суппорт»</div>
+    <div>vedsupport.com</div>
+  </div>
+</footer>
+</body>
+<script>
+  document.querySelectorAll(".js-year").forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+</script>
+</html>

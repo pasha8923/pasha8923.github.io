@@ -90,8 +90,9 @@ a:hover{ text-decoration: underline; }
 
 /* Hero */
 .hero{
-  padding: 44px 0 26px;
+  padding: 26px 0 26px;
 }
+
 .hero__panel{
   border-radius: 26px;
   background:
@@ -318,4 +319,39 @@ textarea{ min-height: 120px; resize: vertical; }
 @media (max-width: 640px){
   .nav{ gap: 12px; }
   .hero__inner{ padding: 22px; }
+}
+/* ===== Логотип в меню справа (после "Контакты") ===== */
+.navLogo{
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px; /* отступ от слова "Контакты" */
+}
+
+.navLogo img{
+  height: 56px;     /* размер логотипа в меню */
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 640px){
+  .navLogo img{
+    height: 40px;
+  }
+}
+
+.hero--single .hero__inner{
+  grid-template-columns: 1fr;
+}
+
+/* ===== Services: текст на всю ширину ===== */
+.page-services .lead{
+  max-width: none;      /* убираем ограничение 64ch */
+}
+
+.page-inner .hero__inner{
+  grid-template-columns: 1fr;
+}
+
+.hero{
+  padding: 26px 0 26px;
 }

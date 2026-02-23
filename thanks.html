@@ -24,5 +24,16 @@
       </div>
     </div>
   </main>
+<footer class="footer">
+  <div class="container footer__inner">
+    <div>© <span class="js-year"></span> «ВЭД Суппорт»</div>
+    <div>vedsupport.com</div>
+  </div>
+</footer>
+<script>
+  document.querySelectorAll(".js-year").forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+</script>
 </body>
 </html>
