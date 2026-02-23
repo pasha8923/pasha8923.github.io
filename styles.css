@@ -355,3 +355,26 @@ textarea{ min-height: 120px; resize: vertical; }
 .hero{
   padding: 26px 0 26px;
 }
+
+/* ===== Mobile nav fix: ссылки не ломаются внутри, переносятся целиком ===== */
+@media (max-width: 640px){
+  .header__inner{
+    justify-content: center;      /* меню по центру на мобиле */
+  }
+
+  .nav{
+    flex-wrap: wrap;              /* можно переносить элементы на новую строку */
+    justify-content: center;
+    row-gap: 8px;                 /* расстояние между строками */
+    column-gap: 12px;
+  }
+
+  .nav a{
+    white-space: nowrap;          /* НЕ переносить "Задать вопрос" внутри */
+    font-size: 13px;              /* чуть меньше, чтобы лучше влезало */
+  }
+
+  .navLogo img{
+    height: 24px;                 /* компактный логотип в шапке */
+  }
+}
