@@ -68,7 +68,7 @@
             <div class="kicker"><span class="kicker__dot"></span> Обратная связь</div>
             <h1 class="h1">Задать вопрос</h1>
             <p class="lead">
-              Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кротчайшие сроки
+              Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кратчайшие сроки
             </p>
 
             <div class="contactBox">
@@ -159,9 +159,8 @@
     }
 
     function apiBase() {
-      // Ожидается, что nginx проксирует /auth/* и /question/* на FastAPI
-      return window.location.origin;
-    }
+  return "https://api.vedsupport.com";
+}
 
     function openOtpModal() {
       otpCodeEl.value = "";
