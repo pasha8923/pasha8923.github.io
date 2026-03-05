@@ -82,7 +82,12 @@
                   <div class="label">Email</div>
                   <input class="input" name="email" type="email" autocomplete="email" required placeholder="name@domain.com" />
                 </div>
-
+		<div class="field">
+ 		 <div class="label">Ваш номер телефона (не обязательно)</div>
+  			<input class="input" name="phone" type="tel" autocomplete="tel"
+         		inputmode="tel"
+         		placeholder="+7 (___) ___-__-__" />
+		</div>
                 <div class="field">
                   <div class="label">Сообщение</div>
                   <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
@@ -135,6 +140,16 @@
 
   <script>
     const form = document.getElementById("contactForm");
+    const phoneEl = form.elements["phone"];
+
+phoneEl.addEventListener("focus", () => {
+  if (!phoneEl.value) phoneEl.value = "+7 ";
+});
+
+phoneEl.addEventListener("blur", () => {
+  const v = (phoneEl.value || "").trim();
+  if (v === "+7" || v === "+7 ") phoneEl.value = "";
+});
     const statusEl = document.getElementById("formStatus");
     const submitBtn = document.getElementById("submitBtn");
 
@@ -230,6 +245,7 @@
       const name = (form.elements["name"].value || "").trim();
       const email = (form.elements["email"].value || "").trim().toLowerCase();
       const message = (form.elements["message"].value || "").trim();
+      const phone = (form.elements["phone"].value || "").trim();
 
       if (!name || !email || !message) {
         return setStatus("Заполните имя, email и сообщение.", true);
@@ -241,7 +257,7 @@
       pendingEmail = email;
       pendingPayload = {
         name,
-        contact: "",   // телефон убрали; backend пока ожидает поле — отправляем пустую строку
+        contact: phone,   // 
         message,
         token: ""      // поставим после verify
       };
