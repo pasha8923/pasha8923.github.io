@@ -40,30 +40,45 @@
               Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кротчайшие сроки
             </p>
 
-           <div class="contactBox">
-                <form class="form" id="contactForm">
-                  <div class="field">
-                    <div class="label">Имя</div>
-                    <input class="input" name="name" autocomplete="name" required placeholder="Ваше имя" />
-                  </div>
+            <div class="contactBox">
+              <form class="form" id="contactForm">
+                <div class="field">
+                  <div class="label">Имя</div>
+                  <input class="input" name="name" autocomplete="name" required placeholder="Ваше имя" />
+                </div>
 
-                  <div class="field">
-                    <div class="label">Телефон или email</div>
-                    <input class="input" name="contact" autocomplete="tel" required placeholder="+7... или email" />
-                  </div>
+                <div class="field">
+                  <div class="label">Email (для подтверждения)</div>
+                  <input class="input" name="email" type="email" autocomplete="email" required placeholder="name@domain.com" />
+                </div>
 
-                  <div class="field">
-                    <div class="label">Сообщение</div>
-                    <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
-                  </div>
+                <div class="field">
+                  <button class="btn btn--wide" type="button" id="sendCodeBtn">Получить код</button>
+                </div>
 
-                  <input type="hidden" name="_subject" value="Заявка с vedsupport.com">
+                <div class="field">
+                  <div class="label">Код из письма</div>
+                  <input class="input" name="code" inputmode="numeric" placeholder="6 цифр" />
+                </div>
 
-                  <button class="btn btn--primary btn--wide" type="submit" id="submitBtn">Отправить</button>
+                <div class="field">
+                  <button class="btn btn--wide" type="button" id="verifyCodeBtn">Подтвердить email</button>
+                </div>
 
-                  <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
-                </form>
-              </div>
+                <div class="field">
+                  <div class="label">Телефон / мессенджер (для связи)</div>
+                  <input class="input" name="contact" autocomplete="tel" required placeholder="+7... или Telegram" />
+                </div>
+
+                <div class="field">
+                  <div class="label">Сообщение</div>
+                  <textarea name="message" id="msg" required placeholder="Кратко опишите задачу" disabled></textarea>
+                </div>
+
+                <button class="btn btn--primary btn--wide" type="submit" id="submitBtn" disabled>Отправить</button>
+
+                <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
+              </form>
             </div>
 
           </div>
@@ -71,61 +86,135 @@
       </div>
     </div>
   </main>
-<footer class="footer">
-  <div class="container footer__inner">
-    <div>© <span class="js-year"></span> «ВЭД Суппорт». Мир открыт.</div>
-    <div>vedsupport.com</div>
-  </div>
-</footer>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span class="js-year"></span> «ВЭД Суппорт». Мир открыт.</div>
+      <div>vedsupport.com</div>
+    </div>
+  </footer>
 
   <script>
     const form = document.getElementById("contactForm");
-    const submitBtn = document.getElementById("submitBtn");
     const statusEl = document.getElementById("formStatus");
+    const submitBtn = document.getElementById("submitBtn");
+    const sendCodeBtn = document.getElementById("sendCodeBtn");
+    const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+    const msgEl = document.getElementById("msg");
+
+    let verifyToken = null;
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text || "";
+      statusEl.className = "fineprint" + (isError ? " is-error" : "");
+    }
+
+    function apiBase() {
+      // Страница может открываться и с www, и без — используем origin.
+      // Важно: API должен быть доступен на том же домене (vedsupport.com).
+      return window.location.origin;
+    }
+
+    sendCodeBtn.addEventListener("click", async () => {
+      setStatus("");
+      const email = (form.elements["email"].value || "").trim();
+      if (!email) return setStatus("Введите email.", true);
+
+      sendCodeBtn.disabled = true;
+      try {
+        const r = await fetch(apiBase() + "/auth/send-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          return setStatus(j.detail || "Не удалось отправить код. Попробуйте позже.", true);
+        }
+
+        setStatus("Код отправлен на email. Введите код и нажмите «Подтвердить email».");
+      } catch (e) {
+        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
+      } finally {
+        sendCodeBtn.disabled = false;
+      }
+    });
+
+    verifyCodeBtn.addEventListener("click", async () => {
+      setStatus("");
+      const email = (form.elements["email"].value || "").trim();
+      const code = (form.elements["code"].value || "").trim();
+      if (!email) return setStatus("Введите email.", true);
+      if (!code) return setStatus("Введите код.", true);
+
+      verifyCodeBtn.disabled = true;
+      try {
+        const r = await fetch(apiBase() + "/auth/verify-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code })
+        });
+
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          return setStatus(j.detail || "Неверный код или истёк срок действия.", true);
+        }
+
+        if (!j.token) {
+          return setStatus("Подтверждение прошло, но токен не получен. Попробуйте ещё раз.", true);
+        }
+
+        verifyToken = j.token;
+        msgEl.disabled = false;
+        submitBtn.disabled = false;
+        setStatus("Email подтвержден. Теперь можно отправить сообщение.");
+      } catch (e) {
+        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
+      } finally {
+        verifyCodeBtn.disabled = false;
+      }
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      setStatus("");
 
-      statusEl.textContent = "";
-      statusEl.className = "fineprint";
+      if (!verifyToken) return setStatus("Сначала подтвердите email.", true);
+
       submitBtn.disabled = true;
-
       try {
-        const data = new FormData(form);
+        const payload = {
+          name: (form.elements["name"].value || "").trim(),
+          contact: (form.elements["contact"].value || "").trim(),
+          message: (form.elements["message"].value || "").trim(),
+          token: verifyToken
+        };
 
-        const resp = await fetch("https://formspree.io/f/mwvnbawv", {
+        const r = await fetch(apiBase() + "/question/submit", {
           method: "POST",
-          body: data,
-          headers: { "Accept": "application/json" }
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
         });
 
-        if (resp.ok) {
-          window.location.href = "/thanks.html";
-          return;
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          return setStatus(j.detail || "Ошибка отправки. Попробуйте позже.", true);
         }
 
-        let msg = "Ошибка отправки. Попробуйте позже.";
-        try {
-          const json = await resp.json();
-          if (json && json.errors && json.errors.length) {
-            msg = json.errors.map(e => e.message).join(" ");
-          }
-        } catch (_) {}
-
-        statusEl.textContent = msg;
-        statusEl.classList.add("is-error");
-      } catch (err) {
-        statusEl.textContent = "Сеть недоступна или сервер не отвечает. Попробуйте позже.";
-        statusEl.classList.add("is-error");
+        window.location.href = "/thanks.html";
+      } catch (e) {
+        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
       } finally {
         submitBtn.disabled = false;
       }
     });
   </script>
-<script>
-  document.querySelectorAll(".js-year").forEach(el => {
-    el.textContent = new Date().getFullYear();
-  });
-</script>
+
+  <script>
+    document.querySelectorAll(".js-year").forEach(el => {
+      el.textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 </html>
