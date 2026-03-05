@@ -8,6 +8,39 @@
   <link rel="stylesheet" href="styles.css?v=4" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
+
+  <style>
+    /* Минимальные стили модалки (не ломают твой styles.css) */
+    .modalOverlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+    .modal {
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.25);
+    }
+    .modalHeader {
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .modalTitle { font-weight: 700; font-size: 18px; }
+    .modalClose {
+      border: 0; background: transparent; font-size: 22px; line-height: 1;
+      cursor: pointer;
+    }
+    .modalActions { display:flex; gap: 10px; margin-top: 12px; }
+    .modalActions .btn { flex: 1; }
+    .fineprint.is-error { color: #b00020; }
+  </style>
 </head>
 
 <body class="page-inner page-question">
@@ -33,9 +66,7 @@
         <div class="hero__inner">
           <div>
             <div class="kicker"><span class="kicker__dot"></span> Обратная связь</div>
-
             <h1 class="h1">Задать вопрос</h1>
-
             <p class="lead">
               Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кротчайшие сроки
             </p>
@@ -48,34 +79,16 @@
                 </div>
 
                 <div class="field">
-                  <div class="label">Email (для подтверждения)</div>
+                  <div class="label">Email</div>
                   <input class="input" name="email" type="email" autocomplete="email" required placeholder="name@domain.com" />
                 </div>
 
                 <div class="field">
-                  <button class="btn btn--wide" type="button" id="sendCodeBtn">Получить код</button>
-                </div>
-
-                <div class="field">
-                  <div class="label">Код из письма</div>
-                  <input class="input" name="code" inputmode="numeric" placeholder="6 цифр" />
-                </div>
-
-                <div class="field">
-                  <button class="btn btn--wide" type="button" id="verifyCodeBtn">Подтвердить email</button>
-                </div>
-
-                <div class="field">
-                  <div class="label">Телефон / мессенджер (для связи)</div>
-                  <input class="input" name="contact" autocomplete="tel" required placeholder="+7... или Telegram" />
-                </div>
-
-                <div class="field">
                   <div class="label">Сообщение</div>
-                  <textarea name="message" id="msg" required placeholder="Кратко опишите задачу" disabled></textarea>
+                  <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
                 </div>
 
-                <button class="btn btn--primary btn--wide" type="submit" id="submitBtn" disabled>Отправить</button>
+                <button class="btn btn--primary btn--wide" type="submit" id="submitBtn">Отправить</button>
 
                 <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
               </form>
@@ -94,124 +107,200 @@
     </div>
   </footer>
 
+  <!-- Модалка ввода кода -->
+  <div class="modalOverlay" id="otpOverlay" role="dialog" aria-modal="true" aria-labelledby="otpTitle">
+    <div class="modal">
+      <div class="modalHeader">
+        <div class="modalTitle" id="otpTitle">Подтверждение email</div>
+        <button class="modalClose" type="button" id="otpCloseBtn" aria-label="Закрыть">×</button>
+      </div>
+
+      <div class="fineprint" style="margin-bottom:10px;">
+        Мы отправили код на ваш email. Введите 6 цифр:
+      </div>
+
+      <div class="field">
+        <div class="label">Код из письма</div>
+        <input class="input" id="otpCode" inputmode="numeric" placeholder="6 цифр" />
+      </div>
+
+      <div id="otpStatus" class="fineprint" style="margin-top:10px;"></div>
+
+      <div class="modalActions">
+        <button class="btn btn--wide" type="button" id="otpResendBtn">Отправить код ещё раз</button>
+        <button class="btn btn--primary btn--wide" type="button" id="otpVerifyBtn">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const form = document.getElementById("contactForm");
     const statusEl = document.getElementById("formStatus");
     const submitBtn = document.getElementById("submitBtn");
-    const sendCodeBtn = document.getElementById("sendCodeBtn");
-    const verifyCodeBtn = document.getElementById("verifyCodeBtn");
-    const msgEl = document.getElementById("msg");
 
-    let verifyToken = null;
+    const overlay = document.getElementById("otpOverlay");
+    const otpCloseBtn = document.getElementById("otpCloseBtn");
+    const otpVerifyBtn = document.getElementById("otpVerifyBtn");
+    const otpResendBtn = document.getElementById("otpResendBtn");
+    const otpCodeEl = document.getElementById("otpCode");
+    const otpStatusEl = document.getElementById("otpStatus");
 
-    function setStatus(text, isError = false) {
+    let pendingPayload = null; // сохраняем данные вопроса до подтверждения
+    let pendingEmail = null;
+
+    function setStatus(text, isError=false) {
       statusEl.textContent = text || "";
       statusEl.className = "fineprint" + (isError ? " is-error" : "");
     }
 
+    function setOtpStatus(text, isError=false) {
+      otpStatusEl.textContent = text || "";
+      otpStatusEl.className = "fineprint" + (isError ? " is-error" : "");
+    }
+
     function apiBase() {
-      // Страница может открываться и с www, и без — используем origin.
-      // Важно: API должен быть доступен на том же домене (vedsupport.com).
+      // Ожидается, что nginx проксирует /auth/* и /question/* на FastAPI
       return window.location.origin;
     }
 
-    sendCodeBtn.addEventListener("click", async () => {
-      setStatus("");
-      const email = (form.elements["email"].value || "").trim();
-      if (!email) return setStatus("Введите email.", true);
+    function openOtpModal() {
+      otpCodeEl.value = "";
+      setOtpStatus("");
+      overlay.style.display = "flex";
+      setTimeout(() => otpCodeEl.focus(), 0);
+    }
 
-      sendCodeBtn.disabled = true;
-      try {
-        const r = await fetch(apiBase() + "/auth/send-code", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        });
+    function closeOtpModal() {
+      overlay.style.display = "none";
+    }
 
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          return setStatus(j.detail || "Не удалось отправить код. Попробуйте позже.", true);
-        }
-
-        setStatus("Код отправлен на email. Введите код и нажмите «Подтвердить email».");
-      } catch (e) {
-        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
-      } finally {
-        sendCodeBtn.disabled = false;
-      }
+    otpCloseBtn.addEventListener("click", closeOtpModal);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeOtpModal();
     });
 
-    verifyCodeBtn.addEventListener("click", async () => {
-      setStatus("");
-      const email = (form.elements["email"].value || "").trim();
-      const code = (form.elements["code"].value || "").trim();
-      if (!email) return setStatus("Введите email.", true);
-      if (!code) return setStatus("Введите код.", true);
+    async function sendCode(email) {
+      const r = await fetch(apiBase() + "/auth/send-code", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email })
+      });
 
-      verifyCodeBtn.disabled = true;
-      try {
-        const r = await fetch(apiBase() + "/auth/verify-code", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code })
-        });
-
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          return setStatus(j.detail || "Неверный код или истёк срок действия.", true);
-        }
-
-        if (!j.token) {
-          return setStatus("Подтверждение прошло, но токен не получен. Попробуйте ещё раз.", true);
-        }
-
-        verifyToken = j.token;
-        msgEl.disabled = false;
-        submitBtn.disabled = false;
-        setStatus("Email подтвержден. Теперь можно отправить сообщение.");
-      } catch (e) {
-        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
-      } finally {
-        verifyCodeBtn.disabled = false;
+      // Если nginx вернул HTML/404 — этот json может упасть, поэтому ловим
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        throw new Error(j.detail || "Не удалось отправить код. Проверьте доступность /auth/send-code на сайте.");
       }
-    });
+      return j;
+    }
 
+    async function verifyCode(email, code) {
+      const r = await fetch(apiBase() + "/auth/verify-code", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email, code })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        throw new Error(j.detail || "Неверный код или истёк срок действия.");
+      }
+      if (!j.token) {
+        throw new Error("Токен не получен. Проверьте, что /auth/verify-code возвращает token.");
+      }
+      return j.token;
+    }
+
+    async function submitQuestion(payload) {
+      const r = await fetch(apiBase() + "/question/submit", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        throw new Error(j.detail || "Ошибка отправки.");
+      }
+      return j;
+    }
+
+    // 1) Пользователь нажал "Отправить" -> шлём код и открываем модалку
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       setStatus("");
 
-      if (!verifyToken) return setStatus("Сначала подтвердите email.", true);
+      const name = (form.elements["name"].value || "").trim();
+      const email = (form.elements["email"].value || "").trim().toLowerCase();
+      const message = (form.elements["message"].value || "").trim();
+
+      if (!name || !email || !message) {
+        return setStatus("Заполните имя, email и сообщение.", true);
+      }
 
       submitBtn.disabled = true;
+
+      // сохраним данные вопроса до подтверждения
+      pendingEmail = email;
+      pendingPayload = {
+        name,
+        contact: "",   // телефон убрали; backend пока ожидает поле — отправляем пустую строку
+        message,
+        token: ""      // поставим после verify
+      };
+
       try {
-        const payload = {
-          name: (form.elements["name"].value || "").trim(),
-          contact: (form.elements["contact"].value || "").trim(),
-          message: (form.elements["message"].value || "").trim(),
-          token: verifyToken
-        };
-
-        const r = await fetch(apiBase() + "/question/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          return setStatus(j.detail || "Ошибка отправки. Попробуйте позже.", true);
-        }
-
-        window.location.href = "/thanks.html";
-      } catch (e) {
-        setStatus("Сеть недоступна или сервер не отвечает. Попробуйте позже.", true);
+        await sendCode(email);
+        setStatus("Код отправлен на email. Подтвердите email, чтобы отправить вопрос.");
+        openOtpModal();
+      } catch (err) {
+        setStatus(err.message || "Не удалось отправить код. Попробуйте позже.", true);
       } finally {
         submitBtn.disabled = false;
       }
     });
-  </script>
 
-  <script>
+    // 2) В модалке: "Отправить код ещё раз"
+    otpResendBtn.addEventListener("click", async () => {
+      setOtpStatus("");
+      if (!pendingEmail) return setOtpStatus("Email не найден. Закройте окно и попробуйте снова.", true);
+
+      otpResendBtn.disabled = true;
+      try {
+        await sendCode(pendingEmail);
+        setOtpStatus("Код отправлен повторно.");
+      } catch (err) {
+        setOtpStatus(err.message || "Не удалось отправить код.", true);
+      } finally {
+        otpResendBtn.disabled = false;
+      }
+    });
+
+    // 3) В модалке: "Подтвердить" -> verify -> submit
+    otpVerifyBtn.addEventListener("click", async () => {
+      setOtpStatus("");
+
+      const code = (otpCodeEl.value || "").trim();
+      if (!pendingEmail) return setOtpStatus("Email не найден. Закройте окно и попробуйте снова.", true);
+      if (!code) return setOtpStatus("Введите код.", true);
+      if (!pendingPayload) return setOtpStatus("Нет данных сообщения. Закройте окно и попробуйте снова.", true);
+
+      otpVerifyBtn.disabled = true;
+
+      try {
+        const token = await verifyCode(pendingEmail, code);
+
+        // подставляем token и отправляем вопрос
+        pendingPayload.token = token;
+        await submitQuestion(pendingPayload);
+
+        closeOtpModal();
+        window.location.href = "/thanks.html";
+      } catch (err) {
+        setOtpStatus(err.message || "Ошибка подтверждения/отправки.", true);
+      } finally {
+        otpVerifyBtn.disabled = false;
+      }
+    });
+
     document.querySelectorAll(".js-year").forEach(el => {
       el.textContent = new Date().getFullYear();
     });
