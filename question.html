@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Задать вопрос — ВЭД Суппорт</title>
-  <meta name="description" content="Задать вопрос по ВЭД и таможенному регулированию: классификация, платежи, документы, запросы таможни." />
+  <title>Консультация по таможенному оформлению и ВЭД — задать вопрос | ВЭД Суппорт</title>
+  <meta name="description" content="Задать вопрос по ВЭД и таможенному оформлению: классификация товаров, разрешительные документы, техническое описание, дополнительные проверки и консультации по импорту." />
   <link rel="stylesheet" href="styles.css?v=4" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
@@ -40,6 +40,83 @@
     .modalActions { display:flex; gap: 10px; margin-top: 12px; }
     .modalActions .btn { flex: 1; }
     .fineprint.is-error { color: #b00020; }
+
+    .seo-block {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .seo-block h2 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .seo-block h3 {
+      margin: 22px 0 10px;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .seo-block p {
+      margin: 0 0 12px;
+      line-height: 1.7;
+    }
+
+    .seo-block ul {
+      margin: 0 0 12px 20px;
+      padding: 0;
+      line-height: 1.7;
+    }
+
+    .seo-block li {
+      margin-bottom: 6px;
+    }
+
+    .seo-cta {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,152,0,0.10), rgba(255,255,255,0.85));
+      border: 1px solid rgba(255,152,0,0.18);
+    }
+
+    .seo-cta p {
+      margin-bottom: 12px;
+    }
+
+    .faq-item + .faq-item {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(0,0,0,0.10);
+    }
+
+    .faq-item h3 {
+      margin-top: 0;
+    }
+
+    .seo-note {
+      color: rgba(17, 17, 17, 0.78);
+    }
+
+    @media (max-width: 768px) {
+      .seo-block {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .seo-block h2 {
+        font-size: 24px;
+      }
+
+      .seo-block h3 {
+        font-size: 18px;
+      }
+    }
   </style>
 </head>
 
@@ -68,7 +145,7 @@
             <div class="kicker"><span class="kicker__dot"></span> Обратная связь</div>
             <h1 class="h1">Задать вопрос</h1>
             <p class="lead">
-              Кратко опишите задачу или проблему связанную с таможенным оформлением и мы свяжемся с вами в кратчайшие сроки
+              Кратко опишите задачу или проблему, связанную с таможенным оформлением, и мы свяжемся с вами в кратчайшие сроки.
             </p>
 
             <div class="contactBox">
@@ -82,12 +159,14 @@
                   <div class="label">Email</div>
                   <input class="input" name="email" type="email" autocomplete="email" required placeholder="name@domain.com" />
                 </div>
-		<div class="field">
- 		 <div class="label">Ваш номер телефона (не обязательно)</div>
-  			<input class="input" name="phone" type="tel" autocomplete="tel"
-         		inputmode="tel"
-         		placeholder="+7 (___) ___-__-__" />
-		</div>
+
+                <div class="field">
+                  <div class="label">Ваш номер телефона (не обязательно)</div>
+                  <input class="input" name="phone" type="tel" autocomplete="tel"
+                         inputmode="tel"
+                         placeholder="+7 (___) ___-__-__" />
+                </div>
+
                 <div class="field">
                   <div class="label">Сообщение</div>
                   <textarea name="message" required placeholder="Кратко опишите задачу"></textarea>
@@ -98,6 +177,96 @@
                 <div id="formStatus" class="fineprint" style="margin-top:10px;"></div>
               </form>
             </div>
+
+            <section class="seo-block" aria-label="Информация о консультациях по ВЭД и таможенному оформлению">
+              <h2>Консультации по таможенному оформлению и вопросам ВЭД</h2>
+              <p>
+                Через эту форму можно направить вопрос по внешнеэкономической деятельности, таможенному оформлению,
+                классификации товаров, разрешительным документам и подготовке документов для импорта.
+              </p>
+              <p>
+                Мы рассматриваем как общие консультационные запросы, так и практические задачи, где требуется
+                проанализировать конкретный товар, документы, описание поставки или ситуацию с таможенным органом.
+              </p>
+
+              <h3>По каким вопросам можно обратиться</h3>
+              <ul>
+		<li>полное документационное сопровождение внешнеэкономических поставок;</li>
+                <li>подбор и проверка кода ТН ВЭД товара;</li>
+                <li>консультация по таможенному оформлению импорта;</li>
+                <li>оформление декларации соответствия, сертификата соответствия, СГР, ЭКСКОНТ и СТ-1;</li>
+                <li>подготовка технического описания на товар;</li>
+                <li>анализ необходимости разрешительных документов;</li>
+                <li>подготовка ответа на дополнительную проверку таможни;</li>
+                <li>разбор спорных ситуаций по классификации и документам.</li>
+              </ul>
+
+              <h3>Что лучше указать в сообщении</h3>
+              <p class="seo-note">
+                Чтобы консультация была предметной, желательно кратко описать товар, указать его назначение,
+                материал или состав, страну происхождения, приложить коммерческое наименование и суть вопроса:
+                нужно определить код, понять необходимость сертификации, подготовить описание или ответить на запрос таможни.
+              </p>
+
+              <h3>Когда особенно нужна консультация специалиста</h3>
+              <p>
+                Консультация особенно полезна в случаях, когда от формулировок и документов зависит результат таможенного
+                оформления: размер пошлины, необходимость обязательного подтверждения соответствия, выпуск товара,
+                риски дополнительных запросов или корректировка сведений в декларации.
+              </p>
+              <p>
+                Если по товару уже поступили дополнительные вопросы, начата дополнительная проверка или есть сомнения
+                по коду ТН ВЭД и комплекту документов, лучше разбирать ситуацию до подачи ответа.
+              </p>
+
+              <div class="seo-cta">
+                <p>
+                  Опишите вашу задачу максимально коротко и по существу. После подтверждения email вопрос будет направлен в работу.
+                </p>
+              </div>
+
+              <h2 style="margin-top:26px;">Частые вопросы</h2>
+
+              <div class="faq-item">
+                <h3>Можно ли задать вопрос по конкретному товару?</h3>
+                <p>
+                  Да. Вы можете описать товар, его назначение, состав, характеристики и саму задачу. Чем точнее исходные данные,
+                  тем полезнее будет консультация.
+                </p>
+              </div>
+
+              <div class="faq-item">
+                <h3>Можно ли обратиться по разрешительным документам?</h3>
+                <p>
+                  Да. Через форму можно направить запрос по декларации соответствия, сертификату соответствия,
+                  СГР, ЭКСКОНТ и сертификату происхождения по форме СТ-1.
+                </p>
+              </div>
+
+              <div class="faq-item">
+                <h3>Можно ли получить помощь по дополнительной проверке таможни?</h3>
+                <p>
+                  Да. Если таможня запросила пояснения, документы или сведения по товару, можно направить вопрос
+                  по подготовке ответа на дополнительную проверку.
+                </p>
+              </div>
+
+              <div class="faq-item">
+                <h3>Подходит ли форма для консультации по техническому описанию товара?</h3>
+                <p>
+                  Да. Вы можете обратиться по вопросам подготовки технического описания товара для классификации,
+                  сертификации или таможенного оформления.
+                </p>
+              </div>
+
+              <div class="faq-item">
+                <h3>Зачем нужно подтверждение email?</h3>
+                <p>
+                  Подтверждение email позволяет исключить ошибочные отправки и гарантирует, что ответ можно будет
+                  связать с вашим обращением.
+                </p>
+              </div>
+            </section>
 
           </div>
         </div>
@@ -142,14 +311,15 @@
     const form = document.getElementById("contactForm");
     const phoneEl = form.elements["phone"];
 
-phoneEl.addEventListener("focus", () => {
-  if (!phoneEl.value) phoneEl.value = "+7 ";
-});
+    phoneEl.addEventListener("focus", () => {
+      if (!phoneEl.value) phoneEl.value = "+7 ";
+    });
 
-phoneEl.addEventListener("blur", () => {
-  const v = (phoneEl.value || "").trim();
-  if (v === "+7" || v === "+7 ") phoneEl.value = "";
-});
+    phoneEl.addEventListener("blur", () => {
+      const v = (phoneEl.value || "").trim();
+      if (v === "+7" || v === "+7 ") phoneEl.value = "";
+    });
+
     const statusEl = document.getElementById("formStatus");
     const submitBtn = document.getElementById("submitBtn");
 
@@ -160,7 +330,7 @@ phoneEl.addEventListener("blur", () => {
     const otpCodeEl = document.getElementById("otpCode");
     const otpStatusEl = document.getElementById("otpStatus");
 
-    let pendingPayload = null; // сохраняем данные вопроса до подтверждения
+    let pendingPayload = null;
     let pendingEmail = null;
 
     function setStatus(text, isError=false) {
@@ -174,8 +344,8 @@ phoneEl.addEventListener("blur", () => {
     }
 
     function apiBase() {
-  return "https://api.vedsupport.com";
-}
+      return "https://api.vedsupport.com";
+    }
 
     function openOtpModal() {
       otpCodeEl.value = "";
@@ -200,7 +370,6 @@ phoneEl.addEventListener("blur", () => {
         body: JSON.stringify({ email })
       });
 
-      // Если nginx вернул HTML/404 — этот json может упасть, поэтому ловим
       const j = await r.json().catch(() => ({}));
       if (!r.ok) {
         throw new Error(j.detail || "Не удалось отправить код. Проверьте доступность /auth/send-code на сайте.");
@@ -237,7 +406,6 @@ phoneEl.addEventListener("blur", () => {
       return j;
     }
 
-    // 1) Пользователь нажал "Отправить" -> шлём код и открываем модалку
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       setStatus("");
@@ -253,13 +421,12 @@ phoneEl.addEventListener("blur", () => {
 
       submitBtn.disabled = true;
 
-      // сохраним данные вопроса до подтверждения
       pendingEmail = email;
       pendingPayload = {
         name,
-        contact: phone,   // 
+        contact: phone,
         message,
-        token: ""      // поставим после verify
+        token: ""
       };
 
       try {
@@ -273,7 +440,6 @@ phoneEl.addEventListener("blur", () => {
       }
     });
 
-    // 2) В модалке: "Отправить код ещё раз"
     otpResendBtn.addEventListener("click", async () => {
       setOtpStatus("");
       if (!pendingEmail) return setOtpStatus("Email не найден. Закройте окно и попробуйте снова.", true);
@@ -289,7 +455,6 @@ phoneEl.addEventListener("blur", () => {
       }
     });
 
-    // 3) В модалке: "Подтвердить" -> verify -> submit
     otpVerifyBtn.addEventListener("click", async () => {
       setOtpStatus("");
 
@@ -303,7 +468,6 @@ phoneEl.addEventListener("blur", () => {
       try {
         const token = await verifyCode(pendingEmail, code);
 
-        // подставляем token и отправляем вопрос
         pendingPayload.token = token;
         await submitQuestion(pendingPayload);
 
