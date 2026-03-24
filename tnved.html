@@ -140,11 +140,16 @@
             <div class="card card--big" style="margin-top: 14px;">
               <form class="form" id="tnvedForm">
                 <div class="field">
-                  <div class="label">Введите краткое описание товара и вставьте изображение из буфера обмена</div>
+                  <div class="label">Введите краткое описание товара или вставьте изображение из папки или буфера обмена, в мобильной версии сайта можно просто сделать фото</div>
                   <textarea
                     id="goodsText"
                     placeholder="Например: 'Футболка мужская, 100% хлопок, трикотаж'"
                   ></textarea>
+<input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none;">
+
+<button type="button" class="btn btn--wide" id="cameraBtn" style="margin-top:10px;">
+  Сделать фото / выбрать изображение
+</button>
 
                   <div id="imgBox" style="margin-top:12px; display:none;">
                     <div class="label">Вставленное изображение:</div>
@@ -287,9 +292,46 @@
     let pastedImageDataUrl = null;
 
     const textarea = document.getElementById("goodsText");
+    const cameraInput = document.getElementById("cameraInput");
+const cameraBtn = document.getElementById("cameraBtn");
+
+cameraBtn.addEventListener("click", () => {
+  cameraInput.click();
+});
     const imgBox = document.getElementById("imgBox");
     const imgPreview = document.getElementById("imgPreview");
     const imgRemoveBtn = document.getElementById("imgRemoveBtn");
+
+cameraInput.addEventListener("change", () => {
+  const file = cameraInput.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    img.onload = () => {
+      const maxWidth = 1200;
+      const scale = Math.min(1, maxWidth / img.width);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      pastedImageDataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      imgPreview.src = pastedImageDataUrl;
+      imgBox.style.display = "block";
+      statusEl.textContent = "Фото добавлено";
+    };
+
+    img.src = reader.result;
+  };
+
+  reader.readAsDataURL(file);
+});
 
     textarea.addEventListener("paste", (e) => {
       const items = (e.clipboardData || window.clipboardData)?.items;
