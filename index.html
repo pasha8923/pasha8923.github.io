@@ -3,27 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=4" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
+
+  <style>
+    /* Музыкальная анимация логотипа */
+    .hero__logoWrap {
+      overflow: visible;
+    }
+
+    .hero__logo {
+      transform-origin: 50% 50%;
+      will-change: transform, filter;
+      backface-visibility: hidden;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Кнопка появляется только если браузер заблокировал автозапуск звука */
+    .sound-start {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 9999;
+      transform: translateX(-50%);
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(20, 20, 25, 0.92);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .sound-start[hidden] {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
-  
 
   <main id="top" class="hero">
     <div class="container">
       <div class="hero__panel">
         <div class="hero__inner">
           <div>
-            
             <h1 class="h1">ПУ ПУ ПУ</h1>
 
-            <p class="lead">
-                         </p>
+            <p class="lead"></p>
 
-            <div class="hero__cta">
- </div>
+            <div class="hero__cta"></div>
           </div>
 
           <div class="hero__logoWrap" aria-hidden="true">
@@ -31,7 +66,7 @@
           </div>
         </div>
       </div>
-        </div>
+    </div>
   </main>
 
   <footer class="footer">
@@ -41,15 +76,176 @@
     </div>
   </footer>
 
+  <!--
+    Положи аудиофайл сюда:
+    /assets/intro.m4a
+  -->
+  <audio id="introMusic" preload="auto" autoplay loop playsinline>
+    <source src="assets/intro.m4a" type="audio/mp4" />
+  </audio>
+
+  <button id="soundStart" class="sound-start" type="button" hidden>
+    🔊 Включить музыку
+  </button>
+
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 
   <script>
-document.addEventListener("DOMContentLoaded", function () {
-  var yearEls = document.querySelectorAll(".js-year");
-  for (var i = 0; i < yearEls.length; i++) {
-    yearEls[i].textContent = new Date().getFullYear();
-  }
-});
-</script>
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Текущий год */
+      var yearEls = document.querySelectorAll(".js-year");
+      for (var i = 0; i < yearEls.length; i++) {
+        yearEls[i].textContent = new Date().getFullYear();
+      }
+
+      var logo = document.querySelector(".hero__logo");
+      var music = document.getElementById("introMusic");
+      var soundStart = document.getElementById("soundStart");
+
+      if (!logo || !music) return;
+
+      music.volume = 0.82;
+
+      var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      var audioContext = null;
+      var analyser = null;
+      var sourceNode = null;
+      var frequencyData = null;
+
+      var animationStarted = false;
+      var spin = 0;
+      var bassAverage = 0;
+      var beatKick = 0;
+      var lastTime = performance.now();
+
+      function setupAudioGraph() {
+        if (audioContext) return;
+
+        audioContext = new AudioContextClass();
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.76;
+
+        sourceNode = audioContext.createMediaElementSource(music);
+        sourceNode.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      }
+
+      function rangeEnergy(fromHz, toHz) {
+        if (!analyser || !frequencyData || !audioContext) return 0;
+
+        var nyquist = audioContext.sampleRate / 2;
+        var start = Math.max(
+          0,
+          Math.floor((fromHz / nyquist) * frequencyData.length)
+        );
+        var end = Math.min(
+          frequencyData.length - 1,
+          Math.ceil((toHz / nyquist) * frequencyData.length)
+        );
+
+        if (end <= start) return 0;
+
+        var sum = 0;
+        var count = 0;
+
+        for (var i = start; i <= end; i++) {
+          sum += frequencyData[i];
+          count++;
+        }
+
+        return count ? (sum / count) / 255 : 0;
+      }
+
+      function animate(now) {
+        requestAnimationFrame(animate);
+
+        if (!analyser || !frequencyData) return;
+
+        analyser.getByteFrequencyData(frequencyData);
+
+        var bass = rangeEnergy(45, 180);
+        var mids = rangeEnergy(180, 1800);
+        var highs = rangeEnergy(1800, 7000);
+
+        /* Простой детектор удара */
+        bassAverage = bassAverage * 0.94 + bass * 0.06;
+
+        if (bass > bassAverage * 1.22 && bass > 0.30) {
+          beatKick = 1;
+        } else {
+          beatKick *= 0.86;
+        }
+
+        var dt = Math.min(40, now - lastTime);
+        lastTime = now;
+
+        /*
+          Бас = размер и прыжок.
+          Середина = скорость вращения.
+          Верх = мелкая веселая вибрация.
+        */
+        spin += (0.025 + mids * 0.16) * dt;
+
+        var scale = 1 + bass * 0.25 + beatKick * 0.08;
+        var jumpY = -(bass * 12 + beatKick * 5);
+
+        var jitterAmount = highs * 5 + beatKick * 1.5;
+        var jitterX = (Math.random() - 0.5) * jitterAmount;
+        var jitterY = (Math.random() - 0.5) * jitterAmount;
+
+        var wobble = Math.sin(now / 115) * (2 + mids * 6);
+        var rotation = spin + wobble;
+
+        logo.style.transform =
+          "translate3d(" +
+          jitterX.toFixed(2) + "px," +
+          (jumpY + jitterY).toFixed(2) + "px,0) " +
+          "rotate(" + rotation.toFixed(2) + "deg) " +
+          "scale(" + scale.toFixed(3) + ")";
+
+        var glow = Math.min(22, 5 + bass * 15 + beatKick * 8);
+        logo.style.filter =
+          "drop-shadow(0 0 " + glow.toFixed(1) + "px rgba(255,255,255," +
+          (0.14 + bass * 0.28).toFixed(2) + "))";
+      }
+
+      async function startMusic() {
+        try {
+          setupAudioGraph();
+
+          if (audioContext.state === "suspended") {
+            await audioContext.resume();
+          }
+
+          await music.play();
+
+          soundStart.hidden = true;
+
+          if (!animationStarted) {
+            animationStarted = true;
+            lastTime = performance.now();
+            requestAnimationFrame(animate);
+          }
+        } catch (error) {
+          /*
+            Chrome/Edge часто блокируют звук при первом открытии сайта.
+            В этом случае показываем кнопку, и после одного клика всё стартует.
+          */
+          soundStart.hidden = false;
+        }
+      }
+
+      soundStart.addEventListener("click", startMusic);
+
+      /* Пробуем запустить сразу после открытия страницы */
+      startMusic();
+    });
+  </script>
 </body>
 </html>
